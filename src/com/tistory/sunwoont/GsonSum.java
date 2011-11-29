@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.ArrayList;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -12,7 +13,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,71 +23,48 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-public class InternetGsonTest extends Activity implements OnClickListener {
+public class GsonSum extends Activity implements OnClickListener {
 	private Button btn;
-	private Button btn1;
-	private TextView text1;
-	private TextView text2;
-//	private TextView text3;
+	private TextView txt;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.internetgson);
+		setContentView(R.layout.sum);
 
-		text1 = (TextView) findViewById(R.id.textView1);
-		text2 = (TextView) findViewById(R.id.textView2);
-//		text3 = (TextView) findViewById(R.id.textView3);
-		btn = (Button) findViewById(R.id.button1);
-		btn1 = (Button)findViewById(R.id.button2);
+		btn = (Button) findViewById(R.id.sumbtn);
+		txt = (TextView) findViewById(R.id.subtxt);
 
 		btn.setOnClickListener(this);
-		btn1.setOnClickListener(this);
 	}
 
 	@Override
 	public void onClick(View v) {
 		// TODO Auto-generated method stub
 		switch (v.getId()) {
-		case R.id.button1:
-			String url = "http://211.114.147.131/boardfree/ExportGsonEx.json";
+		case R.id.sumbtn:
+
+			Integer arr_sum = 0;
+			String url = "http://211.114.147.131/boardfree/GsonSum.json";
 
 			try {
-
-				String txt1 = null;
-				String txt2 = null;
-				// String txt3 = null;
-
 				InputStream source = retrieveStream(url);
 				Reader reader = new InputStreamReader(source);
 
-				Gson gson = new Gson();// Gson 객체 및 인스턴스 생성.
-				Status status = gson.fromJson(reader, Status.class);
-
-				for (Layout layout : status.getPages()) {
-					txt2 += "articales :"+layout.getArticles()+"\n Layout : "+layout.getLayout()
-							+"\n halfLayout :"+layout.getHalfLayout();
-					for (Article article : layout.getArticles()) {
-						txt1 += "articleSeq :" + article.getArticleSeq()
-								+ "\n title :" + article.getTitle() + "\n url :"
-								+ article.getUrl() + "\n thumbnailUrl :"
-								+ article.getThumbnailUrl() + "\n type :"
-								+ article.getType() + "\n rank :"
-								+ article.getRank();
-					}
+				Gson gson = new Gson();
+				
+				ArrSum1 arr = gson.fromJson(reader, ArrSum1.class);
+				
+				for(Sum sum : arr.getGsonSum()){
+					arr_sum += sum.getSum();
 				}
-				text1.setText(txt1);
-				text2.setText(txt2);
-				// text3.setText(txt3);
+				txt.setText("arr_Sum = "+arr_sum);
 			} catch (Exception e) {
-				text1.setText(e.getMessage());
+				txt.setText(e.getMessage());
 			}
-			break;
-		case R.id.button2:
-			Intent intent = new Intent(getApplication(), GsonSum.class);
-			startActivity(intent);
+
 			break;
 		}
 	}
@@ -99,11 +76,8 @@ public class InternetGsonTest extends Activity implements OnClickListener {
 
 		try {
 			HttpResponse getResponse = client.execute(getRequest);
-			final int statusCode = getResponse.getStatusLine().getStatusCode();// url의
-																				// 응답
-																				// 상태를
-																				// 얻어
-
+			final int statusCode = getResponse.getStatusLine().getStatusCode();
+			
 			if (statusCode != HttpStatus.SC_OK) {
 				Log.w(getClass().getSimpleName(), "Error " + statusCode
 						+ " for URL " + url);
@@ -118,5 +92,29 @@ public class InternetGsonTest extends Activity implements OnClickListener {
 			Log.w(getClass().getSimpleName(), "Error for URL " + url, e);
 		}
 		return null;
+	}
+
+	public class ArrSum1 {
+		private ArrayList<Sum> GsonSum;
+
+		public ArrayList<Sum> getGsonSum() {
+			return GsonSum;
+		}
+
+		public void setGsonSum(ArrayList<Sum> gsonSum) {
+			GsonSum = gsonSum;
+		}
+	}
+
+	public class Sum {
+		private Integer sum;
+
+		public Integer getSum() {
+			return sum;
+		}
+
+		public void setSum(Integer sum) {
+			this.sum = sum;
+		}
 	}
 }

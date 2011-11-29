@@ -20,6 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name="InternetGsonTest"></activity>
+        <activity android:name="GsonSum"></activity>
     </application>
 
 </manifest>
